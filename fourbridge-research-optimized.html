@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FourBridge Research Tool v2.0</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #12121a;
+      --bg-tertiary: #1a1a24;
+      --bg-card: #16161f;
+      --border: #2a2a3a;
+      --border-focus: #4f6ef7;
+      --text-primary: #f0f0f5;
+      --text-secondary: #8888a0;
+      --text-muted: #5a5a70;
+      --accent: #4f6ef7;
+      --accent-hover: #6580ff;
+      --success: #22c55e;
+      --success-bg: rgba(34, 197, 94, 0.1);
+      --warning: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.1);
+      --error: #ef4444;
+      --error-bg: rgba(239, 68, 68, 0.1);
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    
+    .app-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+    
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    
+    .header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .header p {
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+    
+    .version-badge {
+      display: inline-block;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent);
+      margin-top: 12px;
+    }
+    
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .card-header h2 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    
+    .card-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+    
+    /* Forms */
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.1);
+    }
+    
+    .form-input::placeholder {
+      color: var(--text-muted);
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 12px;
+    }
+    
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+    
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+    
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .btn-secondary {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+    
+    .btn-secondary:hover:not(:disabled) {
+      background: var(--bg-secondary);
+      border-color: var(--border-focus);
+    }
+    
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+    
+    .btn-full {
+      width: 100%;
+    }
+    
+    /* Status Messages */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    
+    .status-bar.success { background: var(--success-bg); border: 1px solid var(--success); }
+    .status-bar.warning { background: var(--warning-bg); border: 1px solid var(--warning); }
+    .status-bar.error { background: var(--error-bg); border: 1px solid var(--error); }
+    
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Results Table */
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    
+    .results-table th {
+      text-align: left;
+      padding: 12px 16px;
+      background: var(--bg-tertiary);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .results-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    
+    .results-table tr:hover td {
+      background: var(--bg-tertiary);
+    }
+    
+    .results-table input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+    
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    
+    .badge-success { background: var(--success-bg); color: var(--success); }
+    .badge-warning { background: var(--warning-bg); color: var(--warning); }
+    .badge-error { background: var(--error-bg); color: var(--error); }
+    .badge-info { background: rgba(79, 110, 247, 0.1); color: var(--accent); }
+    
+    /* Firm Info Display */
+    .firm-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+      padding: 16px;
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .firm-stat {
+      text-align: center;
+    }
+    
+    .firm-stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    
+    .firm-stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+    }
+    
+    /* LinkedIn Link */
+    .linkedin-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      word-break: break-all;
+    }
+    
+    .linkedin-link:hover {
+      text-decoration: underline;
+    }
+    
+    /* Cost Display */
+    .cost-display {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    
+    .cost-display strong {
+      color: var(--success);
+    }
+    
+    /* Database Section */
+    .database-section {
+      margin-top: 40px;
+    }
+    
+    .database-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .database-stats {
+      display: flex;
+      gap: 24px;
+    }
+    
+    .db-stat {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+    
+    .db-stat strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 20px;
+      background: var(--bg-secondary);
+      padding: 4px;
+      border-radius: 8px;
+      width: fit-content;
+    }
+    
+    .tab {
+      padding: 8px 20px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      background: transparent;
+    }
+    
+    .tab.active {
+      background: var(--accent);
+      color: white;
+    }
+    
+    .tab:hover:not(.active) {
+      color: var(--text-primary);
+    }
+    
+    /* API Config */
+    .api-config {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+    
+    .api-config .form-group {
+      flex: 1;
+      margin-bottom: 0;
+    }
+    
+    .api-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+    
+    .api-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    
+    .api-dot.connected { background: var(--success); }
+    .api-dot.disconnected { background: var(--error); }
+    
+    /* Collapsible */
+    .collapsible-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      padding: 12px 0;
+    }
+    
+    .collapsible-header:hover h3 {
+      color: var(--accent);
+    }
+    
+    .collapsible-content {
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+    
+    /* Token savings highlight */
+    .token-savings {
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(79, 110, 247, 0.1));
+      border: 1px solid var(--success);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    
+    .token-savings h4 {
+      color: var(--success);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    
+    .token-savings ul {
+      list-style: none;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    
+    .token-savings li {
+      margin: 4px 0;
+    }
+    
+    .token-savings li::before {
+      content: "✓ ";
+      color: var(--success);
+    }
+    
+    /* Actions bar */
+    .actions-bar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+    
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    const { useState, useEffect, useCallback } = React;
+    
+    // ============================================================
+    // TOKEN-OPTIMIZED API CONFIGURATION
+    // ============================================================
+    const API_CONFIG = {
+      model: "claude-3-5-haiku-20241022",
+      maxTokens: 1200,
+      // Token efficiency headers
+      headers: {
+        "Content-Type": "application/json",
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true",
+        "anthropic-beta": "token-efficient-tools-2025-02-19"  // 14% savings
+      }
+    };
+    
+    // ============================================================
+    // OPTIMIZED PROMPTS (Lean + Prefill strategy)
+    // ============================================================
+    const PROMPTS = {
+      // Pass 1: Firm + People Discovery (~50 tokens prompt)
+      firmDiscovery: (firmName, location) => ({
+        user: `${firmName}${location ? ` ${location}` : ''}: firm info + 5-8 key executives (CEO,CIO,COO,CFO,partners,directors,principals)
+Output JSON: firm{name,type(SFO/MFO/RIA/Foundation/Endowment),location,aum,website,description} people[{name,title}]`,
+        prefill: `{"firm":{`  // Force JSON, skip preamble
+      }),
+      
+      // Pass 2: LinkedIn URL Discovery (~40 tokens prompt)
+      linkedinDiscovery: (people, firmName) => ({
+        user: `Find LinkedIn URLs for these people at ${firmName}:
+${people.map(p => `- ${p.name}, ${p.title}`).join('\n')}
+Output JSON array: [{name,linkedin}] (linkedin = full URL or null)`,
+        prefill: `[{"`  // Force JSON array
+      }),
+      
+      // Deep Search: Individual LinkedIn lookup (~30 tokens)
+      deepSearch: (name, title, firmName) => ({
+        user: `LinkedIn URL for: ${name}, ${title} at ${firmName}
+JSON: {name,linkedin} (full URL or null)`,
+        prefill: `{"name":"`
+      })
+    };
+    
+    // ============================================================
+    // MAIN APPLICATION
+    // ============================================================
+    function App() {
+      // API State
+      const [apiKey, setApiKey] = useState(() => localStorage.getItem('anthropic_api_key') || '');
+      const [sheetsUrl, setSheetsUrl] = useState(() => localStorage.getItem('sheets_url') || '');
+      
+      // Search State
+      const [firmName, setFirmName] = useState('');
+      const [location, setLocation] = useState('');
+      const [isSearching, setIsSearching] = useState(false);
+      const [status, setStatus] = useState({ message: '', type: '' });
+      
+      // Results State
+      const [firmData, setFirmData] = useState(null);
+      const [peopleResults, setPeopleResults] = useState([]);
+      const [selectedPeople, setSelectedPeople] = useState(new Set());
+      
+      // Database State
+      const [database, setDatabase] = useState(() => {
+        const saved = localStorage.getItem('fourbridge_db');
+        return saved ? JSON.parse(saved) : { firms: [], prospects: [] };
+      });
+      const [dbTab, setDbTab] = useState('firms');
+      
+      // Cost Tracking
+      const [sessionCost, setSessionCost] = useState(0);
+      
+      // Save API key
+      useEffect(() => {
+        if (apiKey) localStorage.setItem('anthropic_api_key', apiKey);
+      }, [apiKey]);
+      
+      // Save sheets URL
+      useEffect(() => {
+        if (sheetsUrl) localStorage.setItem('sheets_url', sheetsUrl);
+      }, [sheetsUrl]);
+      
+      // Save database
+      useEffect(() => {
+        localStorage.setItem('fourbridge_db', JSON.stringify(database));
+      }, [database]);
+      
+      // ============================================================
+      // API CALL WITH TOKEN OPTIMIZATION
+      // ============================================================
+      const callAPI = async (userMessage, prefill, useSearch = true) => {
+        const messages = [
+          { role: "user", content: userMessage }
+        ];
+        
+        // Add prefill to force JSON output (saves ~50-100 output tokens)
+        if (prefill) {
+          messages.push({ role: "assistant", content: prefill });
+        }
+        
+        const body = {
+          model: API_CONFIG.model,
+          max_tokens: API_CONFIG.maxTokens,
+          messages
+        };
+        
+        // Add web search tool if needed
+        if (useSearch) {
+          body.tools = [{ type: "web_search_20250305", name: "web_search" }];
+        }
+        
+        const response = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: {
+            ...API_CONFIG.headers,
+            "x-api-key": apiKey
+          },
+          body: JSON.stringify(body)
+        });
+        
+        if (!response.ok) {
+          const err = await response.json();
+          throw new Error(err.error?.message || `API Error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Track costs (Haiku: $0.25/MTok input, $1.25/MTok output + ~$0.05 search)
+        const inputCost = (data.usage?.input_tokens || 0) * 0.00000025;
+        const outputCost = (data.usage?.output_tokens || 0) * 0.00000125;
+        const searchCost = useSearch ? 0.05 : 0;
+        const totalCost = inputCost + outputCost + searchCost;
+        setSessionCost(prev => prev + totalCost);
+        
+        console.log(`=== API CALL ===`);
+        console.log(`Tokens: ${data.usage?.input_tokens} in / ${data.usage?.output_tokens} out`);
+        console.log(`Cost: $${totalCost.toFixed(4)}`);
+        
+        return data;
+      };
+      
+      // ============================================================
+      // JSON PARSER WITH ERROR RECOVERY
+      // ============================================================
+      const parseJSON = (text, prefill = '') => {
+        // Reconstruct with prefill
+        let fullText = prefill + text;
+        
+        // Clean markdown
+        fullText = fullText.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+        
+        // Try direct parse
+        try {
+          return JSON.parse(fullText);
+        } catch (e) {
+          console.log("Direct parse failed, trying extraction...");
+        }
+        
+        // Try object extraction
+        const objMatch = fullText.match(/\{[\s\S]*\}/);
+        if (objMatch) {
+          try {
+            return JSON.parse(objMatch[0]);
+          } catch (e) {
+            // Fix common issues
+            const fixed = objMatch[0]
+              .replace(/,\s*}/g, '}')
+              .replace(/,\s*]/g, ']')
+              .replace(/'/g, '"')
+              .replace(/(\w+):/g, '"$1":');
+            try { return JSON.parse(fixed); } catch {}
+          }
+        }
+        
+        // Try array extraction
+        const arrMatch = fullText.match(/\[[\s\S]*\]/);
+        if (arrMatch) {
+          try {
+            return JSON.parse(arrMatch[0]);
+          } catch (e) {
+            const fixed = arrMatch[0]
+              .replace(/,\s*]/g, ']')
+              .replace(/,\s*}/g, '}');
+            try { return JSON.parse(fixed); } catch {}
+          }
+        }
+        
+        console.error("Parse failed. Raw text:", fullText);
+        return null;
+      };
+      
+      // Extract text from API response
+      const extractText = (data) => {
+        if (!data.content) return '';
+        return data.content
+          .filter(c => c.type === 'text')
+          .map(c => c.text)
+          .join('');
+      };
+      
+      // ============================================================
+      // MAIN SEARCH FUNCTION (2-Pass + Prefill Optimization)
+      // ============================================================
+      const handleSearch = async () => {
+        if (!apiKey || !firmName.trim()) return;
+        
+        setIsSearching(true);
+        setFirmData(null);
+        setPeopleResults([]);
+        setSelectedPeople(new Set());
+        
+        try {
+          // ========== PASS 1: Firm + People Discovery ==========
+          setStatus({ message: 'Pass 1: Finding firm & executives...', type: 'loading' });
+          
+          const p1 = PROMPTS.firmDiscovery(firmName.trim(), location.trim());
+          const response1 = await callAPI(p1.user, p1.prefill, true);
+          const text1 = extractText(response1);
+          
+          console.log("=== PASS 1 RAW ===", text1);
+          
+          const parsed1 = parseJSON(text1, p1.prefill);
+          console.log("=== PASS 1 PARSED ===", parsed1);
+          
+          if (!parsed1 || !parsed1.firm) {
+            throw new Error("Could not parse firm data. Check console (F12).");
+          }
+          
+          // Process firm data
+          const firm = {
+            name: parsed1.firm.name || firmName,
+            type: parsed1.firm.type || 'Unknown',
+            location: parsed1.firm.location || location || 'Unknown',
+            aum: parsed1.firm.aum || '',
+            website: parsed1.firm.website || '',
+            description: parsed1.firm.description || ''
+          };
+          setFirmData(firm);
+          
+          // Process people
+          let people = (parsed1.people || []).map((p, i) => ({
+            id: `p${i}`,
+            name: p.name,
+            title: p.title,
+            linkedin: null,
+            confidence: 'pending'
+          }));
+          
+          if (people.length === 0) {
+            setStatus({ message: 'No executives found. Try adding location.', type: 'warning' });
+            setIsSearching(false);
+            return;
+          }
+          
+          setPeopleResults(people);
+          
+          // ========== PASS 2: LinkedIn URL Discovery ==========
+          setStatus({ message: `Pass 2: Finding LinkedIn URLs for ${people.length} people...`, type: 'loading' });
+          
+          const p2 = PROMPTS.linkedinDiscovery(people.slice(0, 6), firm.name);
+          const response2 = await callAPI(p2.user, p2.prefill, true);
+          const text2 = extractText(response2);
+          
+          console.log("=== PASS 2 RAW ===", text2);
+          
+          const parsed2 = parseJSON(text2, p2.prefill);
+          console.log("=== PASS 2 PARSED ===", parsed2);
+          
+          if (Array.isArray(parsed2)) {
+            people = people.map(person => {
+              const match = parsed2.find(p2 => 
+                p2.name?.toLowerCase().includes(person.name.split(' ')[0].toLowerCase()) ||
+                person.name.toLowerCase().includes(p2.name?.split(' ')[0]?.toLowerCase() || '')
+              );
+              if (match?.linkedin && match.linkedin !== 'null') {
+                return {
+                  ...person,
+                  linkedin: match.linkedin,
+                  confidence: 'high'
+                };
+              }
+              return { ...person, confidence: 'low' };
+            });
+          }
+          
+          setPeopleResults(people);
+          
+          // Auto-select people with LinkedIn URLs
+          const withLinkedIn = new Set(
+            people.filter(p => p.linkedin).map(p => p.id)
+          );
+          setSelectedPeople(withLinkedIn);
+          
+          const foundCount = people.filter(p => p.linkedin).length;
+          setStatus({ 
+            message: `Found ${foundCount}/${people.length} LinkedIn URLs. ${people.length - foundCount > 0 ? 'Use Deep Search for remaining.' : ''}`, 
+            type: foundCount > 0 ? 'success' : 'warning' 
+          });
+          
+        } catch (error) {
+          console.error("Search error:", error);
+          setStatus({ message: error.message, type: 'error' });
+        } finally {
+          setIsSearching(false);
+        }
+      };
+      
+      // ============================================================
+      // DEEP SEARCH (Individual LinkedIn lookups)
+      // ============================================================
+      const handleDeepSearch = async () => {
+        const needsSearch = peopleResults.filter(p => !p.linkedin);
+        if (needsSearch.length === 0) return;
+        
+        setIsSearching(true);
+        setStatus({ message: `Deep searching ${needsSearch.length} people...`, type: 'loading' });
+        
+        let updated = [...peopleResults];
+        let found = 0;
+        
+        for (const person of needsSearch) {
+          try {
+            const p = PROMPTS.deepSearch(person.name, person.title, firmData?.name || firmName);
+            const response = await callAPI(p.user, p.prefill, true);
+            const text = extractText(response);
+            const parsed = parseJSON(text, p.prefill);
+            
+            if (parsed?.linkedin && parsed.linkedin !== 'null') {
+              updated = updated.map(p => 
+                p.id === person.id 
+                  ? { ...p, linkedin: parsed.linkedin, confidence: 'high' }
+                  : p
+              );
+              found++;
+            }
+          } catch (e) {
+            console.error(`Deep search failed for ${person.name}:`, e);
+          }
+        }
+        
+        setPeopleResults(updated);
+        setStatus({ 
+          message: `Deep search complete. Found ${found} additional URLs.`, 
+          type: found > 0 ? 'success' : 'warning' 
+        });
+        setIsSearching(false);
+      };
+      
+      // ============================================================
+      // DATABASE OPERATIONS
+      // ============================================================
+      const addToDatabase = () => {
+        if (!firmData || selectedPeople.size === 0) return;
+        
+        // Check for duplicate firm
+        const existingFirmIdx = database.firms.findIndex(
+          f => f.name.toLowerCase() === firmData.name.toLowerCase()
+        );
+        
+        const newFirm = {
+          id: existingFirmIdx >= 0 ? database.firms[existingFirmIdx].id : `firm_${Date.now()}`,
+          ...firmData,
+          addedAt: new Date().toISOString()
+        };
+        
+        // Add selected prospects
+        const newProspects = peopleResults
+          .filter(p => selectedPeople.has(p.id))
+          .map(p => ({
+            id: `prospect_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+            name: p.name,
+            title: p.title,
+            firm: firmData.name,
+            linkedin: p.linkedin,
+            confidence: p.confidence,
+            addedAt: new Date().toISOString()
+          }));
+        
+        // Dedupe prospects
+        const existingKeys = new Set(
+          database.prospects.map(p => `${p.name.toLowerCase()}|${p.firm.toLowerCase()}`)
+        );
+        
+        const uniqueProspects = newProspects.filter(
+          p => !existingKeys.has(`${p.name.toLowerCase()}|${p.firm.toLowerCase()}`)
+        );
+        
+        setDatabase(prev => ({
+          firms: existingFirmIdx >= 0 
+            ? prev.firms.map((f, i) => i === existingFirmIdx ? newFirm : f)
+            : [...prev.firms, newFirm],
+          prospects: [...prev.prospects, ...uniqueProspects]
+        }));
+        
+        setStatus({ 
+          message: `Added ${uniqueProspects.length} prospects to database.`, 
+          type: 'success' 
+        });
+      };
+      
+      // Push to Google Sheets
+      const pushToSheets = async () => {
+        if (!sheetsUrl) {
+          setStatus({ message: 'Please configure Google Sheets URL first.', type: 'warning' });
+          return;
+        }
+        
+        setStatus({ message: 'Pushing to Google Sheets...', type: 'loading' });
+        
+        try {
+          await fetch(sheetsUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              firms: database.firms,
+              prospects: database.prospects
+            })
+          });
+          
+          setStatus({ message: 'Data sent to Google Sheets!', type: 'success' });
+        } catch (e) {
+          setStatus({ message: `Sheets error: ${e.message}`, type: 'error' });
+        }
+      };
+      
+      // Toggle person selection
+      const togglePerson = (id) => {
+        setSelectedPeople(prev => {
+          const next = new Set(prev);
+          if (next.has(id)) next.delete(id);
+          else next.add(id);
+          return next;
+        });
+      };
+      
+      // Select all
+      const selectAll = () => {
+        setSelectedPeople(new Set(peopleResults.map(p => p.id)));
+      };
+      
+      // ============================================================
+      // RENDER
+      // ============================================================
+      return (
+        <div className="app-container">
+          {/* Header */}
+          <header className="header">
+            <h1>FourBridge Research Tool</h1>
+            <p>Token-optimized prospect discovery with LinkedIn intelligence</p>
+            <span className="version-badge">v2.0 • Haiku + Prefill + Beta Headers</span>
+          </header>
+          
+          {/* Token Savings Info */}
+          <div className="token-savings">
+            <h4>⚡ Token Efficiency Optimizations Active</h4>
+            <ul>
+              <li>Prefill responses force JSON output (saves ~50-100 tokens/call)</li>
+              <li>token-efficient-tools-2025-02-19 beta header (~14% savings)</li>
+              <li>Lean prompts (~60 tokens vs ~150 standard)</li>
+              <li>2-pass architecture (vs 4-pass = 50% fewer API calls)</li>
+            </ul>
+          </div>
+          
+          {/* API Configuration */}
+          <div className="card">
+            <div className="card-header">
+              <div className="card-icon">🔑</div>
+              <h2>API Configuration</h2>
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">Anthropic API Key</label>
+              <div className="api-config">
+                <div className="form-group">
+                  <input
+                    type="password"
+                    className="form-input"
+                    placeholder="sk-ant-..."
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="api-status">
+                <span className={`api-dot ${apiKey ? 'connected' : 'disconnected'}`}></span>
+                <span>{apiKey ? 'API Key configured' : 'Enter API key to start'}</span>
+              </div>
+            </div>
+            
+            <div className="form-group" style={{ marginTop: 16 }}>
+              <label className="form-label">Google Sheets URL (Optional)</label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="https://script.google.com/macros/s/..."
+                value={sheetsUrl}
+                onChange={(e) => setSheetsUrl(e.target.value)}
+              />
+            </div>
+          </div>
+          
+          {/* Search Card */}
+          <div className="card">
+            <div className="card-header">
+              <div className="card-icon">🔍</div>
+              <h2>Research Firm</h2>
+            </div>
+            
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Firm Name</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="e.g., Rockefeller Capital Management"
+                  value={firmName}
+                  onChange={(e) => setFirmName(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Location (Optional)</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="e.g., New York"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
+              </div>
+            </div>
+            
+            <button 
+              className="btn btn-primary btn-full"
+              onClick={handleSearch}
+              disabled={!apiKey || !firmName.trim() || isSearching}
+            >
+              {isSearching ? (
+                <>
+                  <span className="spinner"></span>
+                  Searching...
+                </>
+              ) : (
+                <>🔍 Search Firm</>
+              )}
+            </button>
+            
+            {/* Cost Display */}
+            {sessionCost > 0 && (
+              <div className="cost-display" style={{ marginTop: 16, justifyContent: 'center' }}>
+                Session cost: <strong>${sessionCost.toFixed(4)}</strong>
+              </div>
+            )}
+          </div>
+          
+          {/* Status Bar */}
+          {status.message && (
+            <div className={`status-bar ${status.type}`}>
+              {status.type === 'loading' && <span className="spinner"></span>}
+              {status.type === 'success' && '✓'}
+              {status.type === 'warning' && '⚠'}
+              {status.type === 'error' && '✕'}
+              {status.message}
+            </div>
+          )}
+          
+          {/* Results */}
+          {firmData && (
+            <div className="card">
+              <div className="card-header">
+                <div className="card-icon">🏢</div>
+                <h2>{firmData.name}</h2>
+              </div>
+              
+              <div className="firm-info">
+                <div className="firm-stat">
+                  <div className="firm-stat-value">{firmData.type}</div>
+                  <div className="firm-stat-label">Type</div>
+                </div>
+                <div className="firm-stat">
+                  <div className="firm-stat-value">{firmData.location || '—'}</div>
+                  <div className="firm-stat-label">Location</div>
+                </div>
+                <div className="firm-stat">
+                  <div className="firm-stat-value">{firmData.aum || '—'}</div>
+                  <div className="firm-stat-label">AUM</div>
+                </div>
+                <div className="firm-stat">
+                  <div className="firm-stat-value">{peopleResults.length}</div>
+                  <div className="firm-stat-label">Executives</div>
+                </div>
+              </div>
+              
+              {firmData.website && (
+                <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 16 }}>
+                  🌐 <a href={firmData.website.startsWith('http') ? firmData.website : `https://${firmData.website}`} 
+                       target="_blank" 
+                       rel="noopener"
+                       style={{ color: 'var(--accent)' }}>
+                    {firmData.website}
+                  </a>
+                </p>
+              )}
+              
+              {peopleResults.length > 0 && (
+                <>
+                  <table className="results-table">
+                    <thead>
+                      <tr>
+                        <th style={{ width: 40 }}>
+                          <input 
+                            type="checkbox" 
+                            checked={selectedPeople.size === peopleResults.length}
+                            onChange={selectAll}
+                          />
+                        </th>
+                        <th>Name</th>
+                        <th>Title</th>
+                        <th>LinkedIn</th>
+                        <th style={{ width: 80 }}>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {peopleResults.map(person => (
+                        <tr key={person.id}>
+                          <td>
+                            <input
+                              type="checkbox"
+                              checked={selectedPeople.has(person.id)}
+                              onChange={() => togglePerson(person.id)}
+                            />
+                          </td>
+                          <td style={{ fontWeight: 500 }}>{person.name}</td>
+                          <td style={{ color: 'var(--text-secondary)' }}>{person.title}</td>
+                          <td>
+                            {person.linkedin ? (
+                              <a 
+                                href={person.linkedin} 
+                                target="_blank" 
+                                rel="noopener"
+                                className="linkedin-link"
+                              >
+                                {person.linkedin.replace('https://www.linkedin.com/in/', '').replace('https://linkedin.com/in/', '').slice(0, 30)}...
+                              </a>
+                            ) : (
+                              <span style={{ color: 'var(--text-muted)' }}>—</span>
+                            )}
+                          </td>
+                          <td>
+                            <span className={`badge badge-${person.confidence === 'high' ? 'success' : person.confidence === 'pending' ? 'info' : 'warning'}`}>
+                              {person.confidence}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  
+                  <div className="actions-bar">
+                    {peopleResults.some(p => !p.linkedin) && (
+                      <button 
+                        className="btn btn-secondary"
+                        onClick={handleDeepSearch}
+                        disabled={isSearching}
+                      >
+                        🔍 Deep Search Missing ({peopleResults.filter(p => !p.linkedin).length})
+                      </button>
+                    )}
+                    <button
+                      className="btn btn-primary"
+                      onClick={addToDatabase}
+                      disabled={selectedPeople.size === 0}
+                    >
+                      ➕ Add {selectedPeople.size} to Database
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+          
+          {/* Database Section */}
+          <div className="database-section">
+            <div className="database-header">
+              <h2 style={{ fontSize: 20, fontWeight: 600 }}>📁 Database</h2>
+              <div className="database-stats">
+                <span className="db-stat"><strong>{database.firms.length}</strong> Firms</span>
+                <span className="db-stat"><strong>{database.prospects.length}</strong> Prospects</span>
+              </div>
+            </div>
+            
+            <div className="tabs">
+              <button 
+                className={`tab ${dbTab === 'firms' ? 'active' : ''}`}
+                onClick={() => setDbTab('firms')}
+              >
+                Firms
+              </button>
+              <button 
+                className={`tab ${dbTab === 'prospects' ? 'active' : ''}`}
+                onClick={() => setDbTab('prospects')}
+              >
+                Prospects
+              </button>
+            </div>
+            
+            <div className="card">
+              {dbTab === 'firms' ? (
+                database.firms.length > 0 ? (
+                  <table className="results-table">
+                    <thead>
+                      <tr>
+                        <th>Firm</th>
+                        <th>Type</th>
+                        <th>Location</th>
+                        <th>AUM</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {database.firms.map(firm => (
+                        <tr key={firm.id}>
+                          <td style={{ fontWeight: 500 }}>{firm.name}</td>
+                          <td><span className="badge badge-info">{firm.type}</span></td>
+                          <td>{firm.location}</td>
+                          <td>{firm.aum || '—'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="empty-state">
+                    <div className="empty-state-icon">🏢</div>
+                    <p>No firms yet. Search and add some!</p>
+                  </div>
+                )
+              ) : (
+                database.prospects.length > 0 ? (
+                  <table className="results-table">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Title</th>
+                        <th>Firm</th>
+                        <th>LinkedIn</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {database.prospects.map(prospect => (
+                        <tr key={prospect.id}>
+                          <td style={{ fontWeight: 500 }}>{prospect.name}</td>
+                          <td style={{ color: 'var(--text-secondary)' }}>{prospect.title}</td>
+                          <td>{prospect.firm}</td>
+                          <td>
+                            {prospect.linkedin ? (
+                              <a href={prospect.linkedin} target="_blank" rel="noopener" className="linkedin-link">
+                                View Profile
+                              </a>
+                            ) : '—'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="empty-state">
+                    <div className="empty-state-icon">👤</div>
+                    <p>No prospects yet. Search firms and add contacts!</p>
+                  </div>
+                )
+              )}
+              
+              {(database.firms.length > 0 || database.prospects.length > 0) && (
+                <div className="actions-bar" style={{ marginTop: 20, borderTop: '1px solid var(--border)', paddingTop: 20 }}>
+                  {sheetsUrl && (
+                    <button className="btn btn-primary" onClick={pushToSheets}>
+                      📤 Push to Google Sheets
+                    </button>
+                  )}
+                  <button 
+                    className="btn btn-secondary"
+                    onClick={() => {
+                      const data = JSON.stringify(database, null, 2);
+                      const blob = new Blob([data], { type: 'application/json' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `fourbridge_export_${new Date().toISOString().split('T')[0]}.json`;
+                      a.click();
+                    }}
+                  >
+                    📥 Export JSON
+                  </button>
+                  <button 
+                    className="btn btn-secondary"
+                    onClick={() => {
+                      if (confirm('Clear entire database?')) {
+                        setDatabase({ firms: [], prospects: [] });
+                      }
+                    }}
+                    style={{ marginLeft: 'auto' }}
+                  >
+                    🗑️ Clear
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
