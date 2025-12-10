@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- FourBridge Research Tool v3.1 - 3-Step Workflow - Updated 2025-12-10 14:35 -->
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FourBridge Research v3.1</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #12121a;
+      --bg-tertiary: #1a1a24;
+      --bg-card: #16161f;
+      --border: #2a2a3a;
+      --border-focus: #4f6ef7;
+      --text-primary: #f0f0f5;
+      --text-secondary: #8888a0;
+      --text-muted: #5a5a70;
+      --accent: #4f6ef7;
+      --accent-hover: #6580ff;
+      --success: #22c55e;
+      --success-bg: rgba(34, 197, 94, 0.1);
+      --warning: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.1);
+      --error: #ef4444;
+      --error-bg: rgba(239, 68, 68, 0.1);
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    
+    .app-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .header p { color: var(--text-secondary); font-size: 14px; }
+    
+    .version-badge {
+      display: inline-block;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent);
+      margin-top: 12px;
+    }
+    
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .card-header h2 { font-size: 16px; font-weight: 600; }
+    
+    .card-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+    
+    .form-group { margin-bottom: 16px; }
+    
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.1);
+    }
+    
+    .form-input::placeholder { color: var(--text-muted); }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+    
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+    
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .btn-secondary {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+    
+    .btn-secondary:hover:not(:disabled) {
+      border-color: var(--border-focus);
+    }
+    
+    .btn-full { width: 100%; }
+    
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    
+    .status-bar.success { background: var(--success-bg); border: 1px solid var(--success); }
+    .status-bar.warning { background: var(--warning-bg); border: 1px solid var(--warning); }
+    .status-bar.error { background: var(--error-bg); border: 1px solid var(--error); }
+    
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    /* Firm Selection Cards */
+    .firm-options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .firm-option {
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .firm-option:hover {
+      border-color: var(--accent);
+      background: var(--bg-tertiary);
+      transform: translateX(4px);
+    }
+    
+    .firm-option-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    
+    .firm-option-details {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    
+    .firm-option-type {
+      display: inline-block;
+      background: rgba(79, 110, 247, 0.15);
+      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    
+    /* Results Table */
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    
+    .results-table th {
+      text-align: left;
+      padding: 12px 16px;
+      background: var(--bg-tertiary);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .results-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .results-table tr:hover td { background: var(--bg-tertiary); }
+    
+    .results-table input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    
+    .badge-success { background: var(--success-bg); color: var(--success); }
+    .badge-warning { background: var(--warning-bg); color: var(--warning); }
+    .badge-info { background: rgba(79, 110, 247, 0.1); color: var(--accent); }
+    
+    .linkedin-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+    
+    .linkedin-link:hover { text-decoration: underline; }
+    
+    .cost-display {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-top: 12px;
+    }
+    
+    .cost-display strong { color: var(--success); }
+    
+    .actions-bar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    
+    /* Step indicator */
+    .steps {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 30px;
+    }
+    
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: var(--bg-secondary);
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    
+    .step.active {
+      background: var(--accent);
+      color: white;
+    }
+    
+    .step.done {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+    
+    .step-num {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 11px;
+    }
+    
+    /* Selected firm display */
+    .selected-firm {
+      background: var(--success-bg);
+      border: 1px solid var(--success);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    
+    .selected-firm-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .selected-firm h3 {
+      color: var(--success);
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
+    .selected-firm p {
+      color: var(--text-primary);
+      font-size: 16px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+    
+    .selected-firm-details {
+      color: var(--text-secondary);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+    
+    .btn-reset {
+      background: transparent;
+      border: 1px solid var(--success);
+      color: var(--success);
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    
+    .btn-reset:hover {
+      background: var(--success);
+      color: white;
+    }
+
+    /* API Config collapsed */
+    .api-section {
+      margin-bottom: 20px;
+    }
+    
+    .api-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      cursor: pointer;
+      padding: 8px 0;
+    }
+    
+    .api-toggle:hover { color: var(--text-primary); }
+    
+    .api-content {
+      margin-top: 12px;
+    }
+    
+    .api-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+    
+    .api-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    
+    .api-dot.on { background: var(--success); }
+    .api-dot.off { background: var(--error); }
+    
+    /* Database section */
+    .db-section { margin-top: 40px; }
+    
+    .db-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    
+    .db-header h2 { font-size: 18px; }
+    
+    .db-stats {
+      display: flex;
+      gap: 20px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    
+    .db-stats strong { color: var(--text-primary); }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+    
+    // ============================================================
+    // CONFIG
+    // ============================================================
+    const API_CONFIG = {
+      model: "claude-3-5-haiku-20241022",
+      maxTokens: 1500,
+      headers: {
+        "Content-Type": "application/json",
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true",
+        "anthropic-beta": "token-efficient-tools-2025-02-19"
+      }
+    };
+    
+    // ============================================================
+    // MAIN APP
+    // ============================================================
+    function App() {
+      // State
+      const [apiKey, setApiKey] = useState(() => localStorage.getItem('anthropic_api_key') || '');
+      const [showApiConfig, setShowApiConfig] = useState(!localStorage.getItem('anthropic_api_key'));
+      const [searchTerm, setSearchTerm] = useState('');
+      const [isLoading, setIsLoading] = useState(false);
+      const [status, setStatus] = useState({ message: '', type: '' });
+      const [sessionCost, setSessionCost] = useState(0);
+      
+      // Workflow state
+      const [step, setStep] = useState(1); // 1=search, 2=select firm, 3=select people
+      const [firmOptions, setFirmOptions] = useState([]);
+      const [selectedFirm, setSelectedFirm] = useState(null);
+      const [people, setPeople] = useState([]);
+      const [selectedPeople, setSelectedPeople] = useState(new Set());
+      
+      // Database
+      const [database, setDatabase] = useState(() => {
+        const saved = localStorage.getItem('fourbridge_db_v3');
+        return saved ? JSON.parse(saved) : { firms: [], prospects: [] };
+      });
+      
+      // Save API key
+      useEffect(() => {
+        if (apiKey) localStorage.setItem('anthropic_api_key', apiKey);
+      }, [apiKey]);
+      
+      // Save database
+      useEffect(() => {
+        localStorage.setItem('fourbridge_db_v3', JSON.stringify(database));
+      }, [database]);
+      
+      // ============================================================
+      // API CALL
+      // ============================================================
+      const callAPI = async (prompt) => {
+        const response = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: { ...API_CONFIG.headers, "x-api-key": apiKey },
+          body: JSON.stringify({
+            model: API_CONFIG.model,
+            max_tokens: API_CONFIG.maxTokens,
+            tools: [{ type: "web_search_20250305", name: "web_search" }],
+            messages: [{ role: "user", content: prompt }]
+          })
+        });
+        
+        if (!response.ok) {
+          const err = await response.json();
+          throw new Error(err.error?.message || `API Error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Track cost
+        const inputCost = (data.usage?.input_tokens || 0) * 0.00000025;
+        const outputCost = (data.usage?.output_tokens || 0) * 0.00000125;
+        const totalCost = inputCost + outputCost + 0.05; // +$0.05 for search
+        setSessionCost(prev => prev + totalCost);
+        
+        console.log(`=== API: ${data.usage?.input_tokens} in / ${data.usage?.output_tokens} out = $${totalCost.toFixed(4)} ===`);
+        
+        // Extract text
+        const text = data.content
+          .filter(c => c.type === 'text')
+          .map(c => c.text)
+          .join('\n');
+        
+        return text;
+      };
+      
+      // ============================================================
+      // BULLETPROOF JSON PARSER
+      // ============================================================
+      const parseJSON = (text) => {
+        console.log("=== RAW TEXT LENGTH ===", text.length);
+        
+        // Step 1: Clean the text
+        let cleaned = text
+          .replace(/```json\s*/gi, '')
+          .replace(/```\s*/g, '')
+          .replace(/[\x00-\x1F\x7F]/g, ' ')  // Remove control characters
+          .trim();
+        
+        // Step 2: Try to find JSON by looking for specific patterns
+        // Pattern 1: {"firms": [...]}
+        let match = cleaned.match(/\{\s*"firms"\s*:\s*\[[\s\S]*?\]\s*\}/);
+        if (match) {
+          try {
+            const parsed = JSON.parse(match[0]);
+            console.log("=== PARSED firms ARRAY ===", parsed);
+            return parsed;
+          } catch (e) {
+            console.log("firms pattern found but failed:", e.message);
+          }
+        }
+        
+        // Pattern 2: {"firm": {...}, "people": [...]} - convert to firms array
+        match = cleaned.match(/\{\s*"firm"\s*:\s*\{[\s\S]*?"people"\s*:\s*\[[\s\S]*?\]\s*\}/);
+        if (match) {
+          try {
+            const parsed = JSON.parse(match[0]);
+            console.log("=== PARSED firm+people ===", parsed);
+            // Convert single firm to firms array for consistency
+            if (parsed.firm && !parsed.firms) {
+              return { firms: [parsed.firm], people: parsed.people };
+            }
+            return parsed;
+          } catch (e) {
+            console.log("firm+people pattern found but failed:", e.message);
+          }
+        }
+        
+        // Pattern 3: {"firm": {...}} alone
+        match = cleaned.match(/\{\s*"firm"\s*:\s*\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}\s*\}/);
+        if (match) {
+          try {
+            const parsed = JSON.parse(match[0]);
+            console.log("=== PARSED single firm ===", parsed);
+            if (parsed.firm) {
+              return { firms: [parsed.firm] };
+            }
+            return parsed;
+          } catch (e) {
+            console.log("single firm pattern found but failed:", e.message);
+          }
+        }
+        
+        // Pattern 4: {"people": [...]}
+        match = cleaned.match(/\{\s*"people"\s*:\s*\[[\s\S]*?\]\s*\}/);
+        if (match) {
+          try {
+            const parsed = JSON.parse(match[0]);
+            console.log("=== PARSED people ===", parsed);
+            return parsed;
+          } catch (e) {
+            console.log("people pattern found but failed:", e.message);
+          }
+        }
+        
+        // Pattern 5: Array of objects [{"name":...}, ...]
+        match = cleaned.match(/\[\s*\{[\s\S]*?\}\s*\]/);
+        if (match) {
+          try {
+            const parsed = JSON.parse(match[0]);
+            console.log("=== PARSED array ===", parsed);
+            return parsed;
+          } catch (e) {
+            console.log("array pattern found but failed:", e.message);
+          }
+        }
+        
+        // Pattern 6: Manual extraction - find first { and matching }
+        const firstBrace = cleaned.indexOf('{');
+        if (firstBrace !== -1) {
+          let depth = 0;
+          let inString = false;
+          let escape = false;
+          
+          for (let i = firstBrace; i < cleaned.length; i++) {
+            const char = cleaned[i];
+            
+            if (escape) { escape = false; continue; }
+            if (char === '\\') { escape = true; continue; }
+            if (char === '"' && !escape) { inString = !inString; continue; }
+            
+            if (!inString) {
+              if (char === '{') depth++;
+              if (char === '}') {
+                depth--;
+                if (depth === 0) {
+                  const jsonStr = cleaned.substring(firstBrace, i + 1);
+                  try {
+                    const parsed = JSON.parse(jsonStr);
+                    console.log("=== PARSED via manual extraction ===", parsed);
+                    // Normalize the response
+                    if (parsed.firm && !parsed.firms) {
+                      return { firms: [parsed.firm], people: parsed.people };
+                    }
+                    return parsed;
+                  } catch (e) {
+                    console.log("Manual extraction failed:", e.message);
+                    // Try to fix common issues
+                    const fixed = jsonStr
+                      .replace(/,\s*}/g, '}')
+                      .replace(/,\s*]/g, ']');
+                    try {
+                      const parsed = JSON.parse(fixed);
+                      console.log("=== PARSED via fixed extraction ===", parsed);
+                      if (parsed.firm && !parsed.firms) {
+                        return { firms: [parsed.firm], people: parsed.people };
+                      }
+                      return parsed;
+                    } catch (e2) {
+                      console.log("Fixed extraction also failed:", e2.message);
+                    }
+                  }
+                  break;
+                }
+              }
+            }
+          }
+        }
+        
+        console.error("=== ALL PARSE ATTEMPTS FAILED ===");
+        return null;
+      };
+      
+      // ============================================================
+      // STEP 1: Search for Firms
+      // ============================================================
+      const handleSearch = async () => {
+        if (!apiKey || !searchTerm.trim()) return;
+        
+        setIsLoading(true);
+        setStatus({ message: 'Searching for matching firms...', type: 'loading' });
+        setFirmOptions([]);
+        setSelectedFirm(null);
+        setPeople([]);
+        
+        try {
+          const prompt = `Search for investment firms, family offices, foundations, or endowments matching: "${searchTerm}"
+
+I need a LIST of 3-5 different organizations that match this search term.
+
+For EACH firm found, provide:
+- name: Official company name
+- type: One of: SFO, MFO, RIA, Foundation, Endowment
+- location: City, State/Country
+- aum: Assets if known (e.g. "$50B") or empty string
+- description: Brief one-line description
+
+IMPORTANT: Return MULTIPLE firms as a JSON array. Format:
+{"firms":[
+  {"name":"Firm One","type":"RIA","location":"New York, NY","aum":"$100B","description":"Description here"},
+  {"name":"Firm Two","type":"Foundation","location":"Chicago, IL","aum":"","description":"Another firm"}
+]}
+
+Return ONLY the JSON, no other text.`;
+
+          const text = await callAPI(prompt);
+          console.log("=== FIRM SEARCH RESPONSE ===");
+          console.log(text);
+          
+          const parsed = parseJSON(text);
+          console.log("=== PARSED RESULT ===", parsed);
+          
+          if (parsed?.firms && parsed.firms.length > 0) {
+            setFirmOptions(parsed.firms);
+            setStep(2);
+            setStatus({ message: `Found ${parsed.firms.length} matching firms. Select the one you want.`, type: 'success' });
+          } else if (parsed?.firm) {
+            // Handle single firm response
+            setFirmOptions([parsed.firm]);
+            setStep(2);
+            setStatus({ message: 'Found 1 matching firm. Select to continue.', type: 'success' });
+          } else {
+            setStatus({ message: 'No firms found. Try a different search term.', type: 'warning' });
+          }
+          
+        } catch (error) {
+          console.error("Search error:", error);
+          setStatus({ message: error.message, type: 'error' });
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      
+      // ============================================================
+      // STEP 2: Select Firm, then search for People
+      // ============================================================
+      const handleSelectFirm = async (firm) => {
+        setSelectedFirm(firm);
+        setIsLoading(true);
+        setStatus({ message: `Finding executives at ${firm.name}...`, type: 'loading' });
+        
+        try {
+          const prompt = `Find the key executives and leadership at: ${firm.name}${firm.location ? ` (${firm.location})` : ''}
+
+Search for 5-8 people with titles like: CEO, President, CIO, COO, CFO, Managing Director, Partner, Principal, Director.
+
+Return ONLY a JSON object with a "people" array:
+{"people":[
+  {"name":"John Smith","title":"Chief Executive Officer"},
+  {"name":"Jane Doe","title":"Chief Investment Officer"}
+]}
+
+Return ONLY the JSON, no other text.`;
+
+          const text = await callAPI(prompt);
+          console.log("=== PEOPLE SEARCH RESPONSE ===");
+          console.log(text);
+          
+          const parsed = parseJSON(text);
+          console.log("=== PARSED PEOPLE ===", parsed);
+          
+          let peopleArray = [];
+          if (parsed?.people) {
+            peopleArray = parsed.people;
+          } else if (Array.isArray(parsed)) {
+            peopleArray = parsed;
+          }
+          
+          if (peopleArray.length > 0) {
+            const peopleWithIds = peopleArray.map((p, i) => ({
+              id: `p${i}`,
+              name: p.name || 'Unknown',
+              title: p.title || 'Executive',
+              linkedin: null,
+              confidence: 'pending'
+            }));
+            setPeople(peopleWithIds);
+            setSelectedPeople(new Set(peopleWithIds.map(p => p.id)));
+            setStep(3);
+            setStatus({ message: `Found ${peopleWithIds.length} executives. Click "Find LinkedIn URLs" to continue.`, type: 'success' });
+          } else {
+            setStatus({ message: 'No executives found. Try a different firm.', type: 'warning' });
+          }
+          
+        } catch (error) {
+          console.error("People search error:", error);
+          setStatus({ message: error.message, type: 'error' });
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      
+      // ============================================================
+      // STEP 3: Find LinkedIn URLs
+      // ============================================================
+      const handleFindLinkedIn = async () => {
+        if (!selectedFirm || people.length === 0) return;
+        
+        setIsLoading(true);
+        setStatus({ message: 'Searching for LinkedIn profiles...', type: 'loading' });
+        
+        try {
+          const peopleToSearch = people.slice(0, 6);
+          const prompt = `Find LinkedIn profile URLs for these executives at ${selectedFirm.name}:
+
+${peopleToSearch.map(p => `- ${p.name}, ${p.title}`).join('\n')}
+
+Search LinkedIn (linkedin.com/in/) for each person's profile.
+
+Return a JSON array with name and linkedin URL for each person:
+[
+  {"name":"John Smith","linkedin":"https://www.linkedin.com/in/johnsmith/"},
+  {"name":"Jane Doe","linkedin":null}
+]
+
+Use null if no LinkedIn profile found. Return ONLY the JSON array.`;
+
+          const text = await callAPI(prompt);
+          console.log("=== LINKEDIN RESPONSE ===");
+          console.log(text);
+          
+          const parsed = parseJSON(text);
+          console.log("=== PARSED LINKEDIN ===", parsed);
+          
+          let linkedinData = [];
+          if (Array.isArray(parsed)) {
+            linkedinData = parsed;
+          } else if (parsed?.people) {
+            linkedinData = parsed.people;
+          }
+          
+          if (linkedinData.length > 0) {
+            const updated = people.map(person => {
+              const firstName = person.name.split(' ')[0].toLowerCase();
+              const lastName = person.name.split(' ').slice(-1)[0].toLowerCase();
+              
+              const match = linkedinData.find(p => {
+                if (!p.name) return false;
+                const pFirst = p.name.split(' ')[0].toLowerCase();
+                const pLast = p.name.split(' ').slice(-1)[0].toLowerCase();
+                return pFirst === firstName || pLast === lastName;
+              });
+              
+              if (match?.linkedin && 
+                  match.linkedin !== 'null' && 
+                  match.linkedin !== null &&
+                  match.linkedin.includes('linkedin.com')) {
+                return { ...person, linkedin: match.linkedin, confidence: 'high' };
+              }
+              return { ...person, confidence: 'low' };
+            });
+            
+            setPeople(updated);
+            
+            const withLinkedIn = updated.filter(p => p.linkedin);
+            setSelectedPeople(new Set(withLinkedIn.map(p => p.id)));
+            
+            setStatus({ 
+              message: `Found ${withLinkedIn.length}/${updated.length} LinkedIn profiles.`, 
+              type: withLinkedIn.length > 0 ? 'success' : 'warning' 
+            });
+          } else {
+            // Mark all as low confidence
+            setPeople(people.map(p => ({ ...p, confidence: 'low' })));
+            setStatus({ message: 'Could not find LinkedIn profiles.', type: 'warning' });
+          }
+          
+        } catch (error) {
+          console.error("LinkedIn error:", error);
+          setStatus({ message: error.message, type: 'error' });
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      
+      // ============================================================
+      // Add to Database
+      // ============================================================
+      const addToDatabase = () => {
+        if (!selectedFirm || selectedPeople.size === 0) return;
+        
+        const newFirm = {
+          id: `firm_${Date.now()}`,
+          ...selectedFirm,
+          addedAt: new Date().toISOString()
+        };
+        
+        const newProspects = people
+          .filter(p => selectedPeople.has(p.id))
+          .map(p => ({
+            id: `prospect_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+            name: p.name,
+            title: p.title,
+            firm: selectedFirm.name,
+            linkedin: p.linkedin,
+            addedAt: new Date().toISOString()
+          }));
+        
+        // Dedupe
+        const existingFirmNames = new Set(database.firms.map(f => f.name.toLowerCase()));
+        const existingProspectKeys = new Set(
+          database.prospects.map(p => `${p.name.toLowerCase()}|${p.firm.toLowerCase()}`)
+        );
+        
+        const firmToAdd = existingFirmNames.has(selectedFirm.name.toLowerCase()) ? null : newFirm;
+        const prospectsToAdd = newProspects.filter(
+          p => !existingProspectKeys.has(`${p.name.toLowerCase()}|${p.firm.toLowerCase()}`)
+        );
+        
+        setDatabase(prev => ({
+          firms: firmToAdd ? [...prev.firms, firmToAdd] : prev.firms,
+          prospects: [...prev.prospects, ...prospectsToAdd]
+        }));
+        
+        setStatus({ 
+          message: `Added ${prospectsToAdd.length} prospects to database.`, 
+          type: 'success' 
+        });
+      };
+      
+      // Reset workflow
+      const handleReset = () => {
+        setStep(1);
+        setFirmOptions([]);
+        setSelectedFirm(null);
+        setPeople([]);
+        setSelectedPeople(new Set());
+        setSearchTerm('');
+        setStatus({ message: '', type: '' });
+      };
+      
+      // Toggle person selection
+      const togglePerson = (id) => {
+        setSelectedPeople(prev => {
+          const next = new Set(prev);
+          if (next.has(id)) next.delete(id);
+          else next.add(id);
+          return next;
+        });
+      };
+      
+      // ============================================================
+      // RENDER
+      // ============================================================
+      return (
+        <div className="app-container">
+          {/* Header */}
+          <header className="header">
+            <h1>🎯 FourBridge Research</h1>
+            <p>3-step prospect discovery with LinkedIn intelligence</p>
+            <span className="version-badge">v3.1 • Search → Select → Enrich</span>
+          </header>
+          
+          {/* Step Indicator */}
+          <div className="steps">
+            <div className={`step ${step === 1 ? 'active' : step > 1 ? 'done' : ''}`}>
+              <span className="step-num">1</span>
+              Search
+            </div>
+            <div className={`step ${step === 2 ? 'active' : step > 2 ? 'done' : ''}`}>
+              <span className="step-num">2</span>
+              Select Firm
+            </div>
+            <div className={`step ${step === 3 ? 'active' : ''}`}>
+              <span className="step-num">3</span>
+              Get Contacts
+            </div>
+          </div>
+          
+          {/* API Config (collapsible) */}
+          <div className="api-section">
+            <div className="api-toggle" onClick={() => setShowApiConfig(!showApiConfig)}>
+              {showApiConfig ? '▼' : '▶'} API Configuration
+              <span className={`api-dot ${apiKey ? 'on' : 'off'}`}></span>
+            </div>
+            {showApiConfig && (
+              <div className="api-content">
+                <input
+                  type="password"
+                  className="form-input"
+                  placeholder="sk-ant-..."
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                />
+                <div className="api-status">
+                  {apiKey ? '✓ API key configured' : 'Enter your Anthropic API key'}
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {/* Status */}
+          {status.message && (
+            <div className={`status-bar ${status.type}`}>
+              {status.type === 'loading' && <span className="spinner"></span>}
+              {status.type === 'success' && '✓'}
+              {status.type === 'warning' && '⚠'}
+              {status.type === 'error' && '✕'}
+              {status.message}
+            </div>
+          )}
+          
+          {/* STEP 1: Search */}
+          {step === 1 && (
+            <div className="card">
+              <div className="card-header">
+                <div className="card-icon">🔍</div>
+                <h2>Step 1: Search for a Firm</h2>
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label">Firm Name or Keywords</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="e.g., Rockefeller, Tiger Global, Oak Foundation..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                />
+              </div>
+              
+              <button
+                className="btn btn-primary btn-full"
+                onClick={handleSearch}
+                disabled={!apiKey || !searchTerm.trim() || isLoading}
+              >
+                {isLoading ? <><span className="spinner"></span> Searching...</> : '🔍 Find Matching Firms'}
+              </button>
+              
+              {sessionCost > 0 && (
+                <div className="cost-display">
+                  Session cost: <strong>${sessionCost.toFixed(4)}</strong>
+                </div>
+              )}
+            </div>
+          )}
+          
+          {/* STEP 2: Select Firm */}
+          {step === 2 && (
+            <div className="card">
+              <div className="card-header">
+                <div className="card-icon">🏢</div>
+                <h2>Step 2: Select the Correct Firm</h2>
+              </div>
+              
+              <div className="firm-options">
+                {firmOptions.map((firm, i) => (
+                  <div
+                    key={i}
+                    className="firm-option"
+                    onClick={() => !isLoading && handleSelectFirm(firm)}
+                  >
+                    <div className="firm-option-name">{firm.name}</div>
+                    <div className="firm-option-details">
+                      <span className="firm-option-type">{firm.type || 'Unknown'}</span>
+                      {firm.location && <span>{firm.location}</span>}
+                      {firm.aum && <span> • {firm.aum}</span>}
+                    </div>
+                    {firm.description && (
+                      <div className="firm-option-details" style={{ marginTop: 8 }}>
+                        {firm.description}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              
+              <div className="actions-bar" style={{ marginTop: 20 }}>
+                <button className="btn btn-secondary" onClick={handleReset}>
+                  ← Back to Search
+                </button>
+              </div>
+              
+              {sessionCost > 0 && (
+                <div className="cost-display">
+                  Session cost: <strong>${sessionCost.toFixed(4)}</strong>
+                </div>
+              )}
+            </div>
+          )}
+          
+          {/* STEP 3: People & LinkedIn */}
+          {step === 3 && selectedFirm && (
+            <div className="card">
+              <div className="card-header">
+                <div className="card-icon">👥</div>
+                <h2>Step 3: Select Contacts</h2>
+              </div>
+              
+              {/* Selected firm banner */}
+              <div className="selected-firm">
+                <div className="selected-firm-header">
+                  <div>
+                    <h3>✓ Selected Firm</h3>
+                    <p>{selectedFirm.name}</p>
+                    <div className="selected-firm-details">
+                      {selectedFirm.type} • {selectedFirm.location}
+                      {selectedFirm.aum && ` • ${selectedFirm.aum}`}
+                    </div>
+                  </div>
+                  <button className="btn-reset" onClick={handleReset}>
+                    Change Firm
+                  </button>
+                </div>
+              </div>
+              
+              {/* People table */}
+              {people.length > 0 && (
+                <>
+                  <table className="results-table">
+                    <thead>
+                      <tr>
+                        <th style={{ width: 40 }}>
+                          <input
+                            type="checkbox"
+                            checked={selectedPeople.size === people.length}
+                            onChange={() => {
+                              if (selectedPeople.size === people.length) {
+                                setSelectedPeople(new Set());
+                              } else {
+                                setSelectedPeople(new Set(people.map(p => p.id)));
+                              }
+                            }}
+                          />
+                        </th>
+                        <th>Name</th>
+                        <th>Title</th>
+                        <th>LinkedIn</th>
+                        <th style={{ width: 80 }}>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {people.map(person => (
+                        <tr key={person.id}>
+                          <td>
+                            <input
+                              type="checkbox"
+                              checked={selectedPeople.has(person.id)}
+                              onChange={() => togglePerson(person.id)}
+                            />
+                          </td>
+                          <td style={{ fontWeight: 500 }}>{person.name}</td>
+                          <td style={{ color: 'var(--text-secondary)' }}>{person.title}</td>
+                          <td>
+                            {person.linkedin ? (
+                              <a
+                                href={person.linkedin}
+                                target="_blank"
+                                rel="noopener"
+                                className="linkedin-link"
+                              >
+                                View Profile →
+                              </a>
+                            ) : (
+                              <span style={{ color: 'var(--text-muted)' }}>—</span>
+                            )}
+                          </td>
+                          <td>
+                            <span className={`badge badge-${
+                              person.confidence === 'high' ? 'success' : 
+                              person.confidence === 'pending' ? 'info' : 'warning'
+                            }`}>
+                              {person.confidence}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  
+                  <div className="actions-bar">
+                    {people.some(p => p.confidence === 'pending') && (
+                      <button
+                        className="btn btn-primary"
+                        onClick={handleFindLinkedIn}
+                        disabled={isLoading}
+                      >
+                        {isLoading ? <><span className="spinner"></span> Searching...</> : '🔗 Find LinkedIn URLs'}
+                      </button>
+                    )}
+                    
+                    <button
+                      className="btn btn-primary"
+                      onClick={addToDatabase}
+                      disabled={selectedPeople.size === 0}
+                      style={{ marginLeft: 'auto' }}
+                    >
+                      ➕ Add {selectedPeople.size} to Database
+                    </button>
+                  </div>
+                </>
+              )}
+              
+              {sessionCost > 0 && (
+                <div className="cost-display">
+                  Session cost: <strong>${sessionCost.toFixed(4)}</strong>
+                </div>
+              )}
+            </div>
+          )}
+          
+          {/* Database */}
+          <div className="db-section">
+            <div className="db-header">
+              <h2>📁 Database</h2>
+              <div className="db-stats">
+                <span><strong>{database.firms.length}</strong> Firms</span>
+                <span><strong>{database.prospects.length}</strong> Prospects</span>
+              </div>
+            </div>
+            
+            {database.prospects.length > 0 ? (
+              <div className="card">
+                <table className="results-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Title</th>
+                      <th>Firm</th>
+                      <th>LinkedIn</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {database.prospects.slice(-10).reverse().map(p => (
+                      <tr key={p.id}>
+                        <td style={{ fontWeight: 500 }}>{p.name}</td>
+                        <td style={{ color: 'var(--text-secondary)' }}>{p.title}</td>
+                        <td>{p.firm}</td>
+                        <td>
+                          {p.linkedin ? (
+                            <a href={p.linkedin} target="_blank" rel="noopener" className="linkedin-link">
+                              View →
+                            </a>
+                          ) : '—'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                
+                <div className="actions-bar" style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => {
+                      const data = JSON.stringify(database, null, 2);
+                      const blob = new Blob([data], { type: 'application/json' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `fourbridge_${new Date().toISOString().split('T')[0]}.json`;
+                      a.click();
+                    }}
+                  >
+                    📥 Export JSON
+                  </button>
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => {
+                      if (confirm('Clear entire database?')) {
+                        setDatabase({ firms: [], prospects: [] });
+                      }
+                    }}
+                    style={{ marginLeft: 'auto' }}
+                  >
+                    🗑️ Clear
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="card" style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>
+                <p>No prospects yet. Search and add some!</p>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+    
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
